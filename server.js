@@ -24,6 +24,11 @@ let persons = [
     }
 ];
 
+// MIDDLEWARE 
+app.use(express.json());
+
+
+// ROUTES 
 // get all contacts 
 app.get("/api/persons", (req, res)=>{
     res.status(200).json({status_code:200, status:"successful", data:persons});
@@ -70,6 +75,42 @@ app.delete("/api/persons/:id", (req, res)=>{
     persons = new_persons;
 
     res.status(204).end();
+})
+
+// add a person 
+app.post("/api/persons", (req, res)=>{
+    let req_body = req.body;
+
+    // generates a new ID 
+    function generateID(){
+        let maxID = 0;
+
+        for(let i = 0; i<persons.length; i++){
+            if(parseInt(persons[i].id) > maxID){
+                maxID = persons[i].id;
+            }
+        }
+
+        let id =parseInt( maxID +=1);
+
+        return id;
+    }
+
+    // check for required fields 
+    if(!req_body.name || !req_body.number){
+         return res.status(400).json({status_code:400, status:"Error", msg:"{name, number} are required!"});
+    };
+
+    // create and add new person 
+    let new_person= {
+            "id": generateID(),
+            "name": req_body.name,
+            "number": req_body.number
+        }
+
+    persons = [...persons, new_person];
+
+    res.status(201).json({status_code:201, status:"successful", data:new_person});
 })
 
 
