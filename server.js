@@ -29,6 +29,16 @@ app.get("/api/persons", (req, res)=>{
     res.status(200).json({status:200, data:persons});
 })
 
+// get info page
+app.get("/api/info", (req, res)=>{
+    let total_persons = persons.length;
+    let date = new Date().toString();
+    
+    res.send(`
+        <p>Phone book has info for ${total_persons} ${total_persons>1?"persons":"person"}</p>
+        <p>${date}</p>`).end();
+})
+
 
 
 
