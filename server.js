@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 
-const persons = [
+let persons = [
     { 
       "id": "1",
       "name": "Arto Hellas", 
@@ -52,6 +52,24 @@ app.get("/api/persons/:id", (req, res)=>{
     }
 
     res.status(200).json({status_code:200, status:"successful", data:found_person});
+})
+
+// delete a person 
+app.delete("/api/persons/:id", (req, res)=>{
+    let id = req.params.id;
+
+      // find person with provided id 
+    let found_person = persons.find((person)=> person.id === id);
+
+    // verify if person exists 
+    if(!found_person){
+        return res.status(404).json({status_code:404, status:"Error", msg:"Person doesn't exists!"});
+    }
+
+    let new_persons = persons.filter((person)=>person.id !== id);
+    persons = new_persons;
+
+    res.status(204).end();
 })
 
 
