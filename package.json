@@ -1,0 +1,25 @@
+{
+  "name": "phonebook-api",
+  "version": "1.0.0",
+  "description": "A Restful API build using nodejs & express",
+  "homepage": "https://github.com/boakaidorborkamara/phonebook-api#readme",
+  "bugs": {
+    "url": "https://github.com/boakaidorborkamara/phonebook-api/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/boakaidorborkamara/phonebook-api.git"
+  },
+  "license": "MIT",
+  "author": "Boakai Dorbo Kamara",
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": {
+    "start":"node server.js",
+    "dev":"node --watch server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
