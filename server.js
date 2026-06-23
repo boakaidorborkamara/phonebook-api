@@ -25,7 +25,24 @@ let persons = [
 ];
 
 // MIDDLEWARE 
+const requestLogger = (req, res, next)=>{
+    console.log("Method", req.method);
+    console.log("Path", req.path);
+    console.log("Body", req.body);
+
+    next();
+}
+
+const unknownEndpoint = (req, res)=>{
+    res.status(404).json({status_code:404, status:"Error", msg:"Unknown endpoint"});
+  
+}
+
+
 app.use(express.json());
+app.use(requestLogger);
+app.use(unknownEndpoint);
+
 
 
 // ROUTES 
