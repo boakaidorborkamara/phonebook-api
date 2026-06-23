@@ -26,7 +26,7 @@ const persons = [
 
 // get all contacts 
 app.get("/api/persons", (req, res)=>{
-    res.status(200).json({status:200, data:persons});
+    res.status(200).json({status_code:200, status:"successful", data:persons});
 })
 
 // get info page
@@ -37,6 +37,21 @@ app.get("/api/info", (req, res)=>{
     res.send(`
         <p>Phone book has info for ${total_persons} ${total_persons>1?"persons":"person"}</p>
         <p>${date}</p>`).end();
+})
+
+// get a person 
+app.get("/api/persons/:id", (req, res)=>{
+    let id = req.params.id;
+    
+    // find person with provided id 
+    let found_person = persons.find((person)=> person.id === id);
+
+    // verify if person exists 
+    if(!found_person){
+        return res.status(404).json({status_code:404, status:"Error", msg:"Person doesn't exists!"});
+    }
+
+    res.status(200).json({status_code:200, status:"successful", data:found_person});
 })
 
 
