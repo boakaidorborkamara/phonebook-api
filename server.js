@@ -89,7 +89,7 @@ app.use(requestLogger);
 
 // ROUTES
 // get all contacts
-app.get("/api/persons", (req, res) => {
+app.get("/api/persons", (req, res, next) => {
 
     console.log("getting all contacts...");
 
@@ -101,7 +101,7 @@ app.get("/api/persons", (req, res) => {
 });
 
 // get info page
-app.get("/api/info", (req, res) => {
+app.get("/api/info", (req, res, next) => {
     
     console.log("getting info...");
 
@@ -123,7 +123,7 @@ app.get("/api/info", (req, res) => {
 });
 
 // get a person
-app.get("/api/persons/:id", (req, res) => {
+app.get("/api/persons/:id", (req, res, next) => {
   let id = req.params.id;
 
   Contact.findById({_id:id})
@@ -144,14 +144,14 @@ app.get("/api/persons/:id", (req, res) => {
     .json({ status_code: 200, status: "successful", data: person });
   })
   .catch(err =>{
-    res.status(500).json({status:500, msg:"Server Encounter an error"});
+    next(err);
   })
 
   
 });
 
 // delete a person
-app.delete("/api/persons/:id", (req, res) => {
+app.delete("/api/persons/:id", (req, res, next) => {
   let id = req.params.id;
 
   Contact.findByIdAndDelete(id)
@@ -169,12 +169,12 @@ app.delete("/api/persons/:id", (req, res) => {
 
     res.status(204).end();
   })
-  .catch(err => {res.status(500).json({status:500, msg:"Server Encounter an error"});})
+  .catch(next(err))
 
 });
 
 // add a person
-app.post("/api/persons", (req, res) => {
+app.post("/api/persons", (req, res, next) => {
   let req_body = req.body;
 
   // check for required fields
@@ -197,10 +197,21 @@ app.post("/api/persons", (req, res) => {
     .json({ status_code: 201, status: "successful", data: result });
   })
 
-
-
-
 });
+
+// handle all errors 
+app.use((error, req, res, next)=>{
+    // console.log(error)
+
+    if(error.type = "CastError"){
+        return res.status(400).json({status:400, msg:"Improper ID format"});
+    }
+    
+    res.status(500).json({status:500, msg:"Server Encounter an error"});
+})
+
+// 404 middleware 
+app.use(unknownEndpoint)
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
