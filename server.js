@@ -166,7 +166,7 @@ app.delete("/api/persons/:id", (req, res) => {
         msg: "Person doesn't exists!",
       });
     }
-    
+
     res.status(204).end();
   })
   .catch(err => {res.status(500).json({status:500, msg:"Server Encounter an error"});})
@@ -176,21 +176,6 @@ app.delete("/api/persons/:id", (req, res) => {
 // add a person
 app.post("/api/persons", (req, res) => {
   let req_body = req.body;
-
-  // generates a new ID
-  function generateID() {
-    let maxID = 0;
-
-    for (let i = 0; i < persons.length; i++) {
-      if (parseInt(persons[i].id) > maxID) {
-        maxID = persons[i].id;
-      }
-    }
-
-    let id = parseInt((maxID += 1));
-
-    return id;
-  }
 
   // check for required fields
   if (!req_body.name || !req_body.number) {
@@ -204,17 +189,17 @@ app.post("/api/persons", (req, res) => {
   }
 
   // create and add new person
-  let new_person = {
-    id: generateID(),
-    name: req_body.name,
-    number: req_body.number,
-  };
+  let new_contact = new Contact({name:req_body.name, number:req_body.number});
 
-  persons = [...persons, new_person];
-
-  res
+  new_contact.save().then((result)=>{
+      res
     .status(201)
-    .json({ status_code: 201, status: "successful", data: new_person });
+    .json({ status_code: 201, status: "successful", data: result });
+  })
+
+
+
+
 });
 
 const PORT = process.env.PORT || 3000;
