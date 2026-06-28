@@ -154,24 +154,23 @@ app.get("/api/persons/:id", (req, res) => {
 app.delete("/api/persons/:id", (req, res) => {
   let id = req.params.id;
 
-  // find person with provided id
-  let found_person = persons.find((person) => person.id === id);
-
-  // verify if person exists
-  if (!found_person) {
-    return res
+  Contact.findByIdAndDelete(id)
+  .then(result =>{
+    
+    if(!result){
+        return res
       .status(404)
       .json({
         status_code: 404,
         status: "Error",
         msg: "Person doesn't exists!",
       });
-  }
+    }
+    
+    res.status(204).end();
+  })
+  .catch(err => {res.status(500).json({status:500, msg:"Server Encounter an error"});})
 
-  let new_persons = persons.filter((person) => person.id !== id);
-  persons = new_persons;
-
-  res.status(204).end();
 });
 
 // add a person
