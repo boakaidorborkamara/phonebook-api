@@ -3,31 +3,6 @@ require('dotenv').config()
 const mongoose = require("mongoose");
 const app = express();
 
-let persons = [
-  {
-    id: "1",
-    name: "Arto Hellas",
-    number: "040-123456",
-  },
-  {
-    id: "2",
-    name: "Ada Lovelace",
-    number: "39-44-5323523",
-  },
-  {
-    id: "3",
-    name: "Dan Abramov",
-    number: "12-43-234345",
-  },
-  {
-    id: "4",
-    name: "Mary Poppendieck",
-    number: "39-23-6423122",
-  },
-];
-
-
-
 // DB CONFIG
 const url = process.env.DB_CONNECTION_STRING;
 
@@ -44,7 +19,15 @@ mongoose.connect(url, {family: 4})
 
 
 // create schema
-const contactSchema = new mongoose.Schema({ name: String, number: String });
+const contactSchema = new mongoose.Schema({ 
+    name: {
+        type:String,
+        minlength: 2,
+        required: true
+    },
+    number: String 
+});
+
 contactSchema.set("toJSON", {transform:(doc, ret)=>{
     ret.id = ret._id.toString();
     delete ret._id;
@@ -187,15 +170,19 @@ app.post("/api/persons", (req, res, next) => {
     .status(201)
     .json({ status_code: 201, status: "successful", data: result });
   })
+  .catch(err=> next(err))
 
 });
 
 // handle all errors 
 app.use((error, req, res, next)=>{
-    // console.log(error)
+    console.log(error.type)
 
-    if(error.type = "CastError"){
+    if(error.name === "CastError"){
         return res.status(400).json({status:400, msg:"Improper ID format"});
+    }
+    else if(error.name === "ValidationError"){
+        return res.status(400).json({status:400, msg:error.message});
     }
     
     res.status(500).json({status:500, msg:"Server Encounter an error"});
