@@ -51,10 +51,14 @@ mongoose.connect(url, {family: 4})
     console.log("error connecting to db!", err.message);
 })
 
-return;
 
 // create schema
 const contactSchema = new mongoose.Schema({ name: String, number: String });
+contactSchema.set("toJSON", {transform:(doc, ret)=>{
+    ret.id = ret._id.toString();
+    delete ret._id;
+    delete ret.__v;
+}} )
 
 // create model
 const Contact = mongoose.model("contact", contactSchema);
@@ -78,7 +82,7 @@ const unknownEndpoint = (req, res) => {
 
 app.use(express.json());
 app.use(requestLogger);
-app.use(unknownEndpoint);
+// app.use(unknownEndpoint);
 
 
 
@@ -86,6 +90,8 @@ app.use(unknownEndpoint);
 // ROUTES
 // get all contacts
 app.get("/api/persons", (req, res) => {
+
+    console.log("getting all contacts...");
 
     Contact.find({})
     .then(persons=>{
