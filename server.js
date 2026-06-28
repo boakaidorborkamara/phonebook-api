@@ -102,39 +102,52 @@ app.get("/api/persons", (req, res) => {
 
 // get info page
 app.get("/api/info", (req, res) => {
-  let total_persons = persons.length;
-  let date = new Date().toString();
+    
+    console.log("getting info...");
 
-  res
-    .send(
-      `
-        <p>Phone book has info for ${total_persons} ${total_persons > 1 ? "persons" : "person"}</p>
-        <p>${date}</p>`,
-    )
-    .end();
+    Contact.find({}).then(persons =>{
+        let total_persons = persons.length;
+        let date = new Date().toString();
+
+        res
+        .send(
+        `
+            <p>Phone book has info for ${total_persons} ${total_persons > 1 ? "persons" : "person"}</p>
+            <p>${date}</p>`,
+        )
+        .end();
+    })
+  
+
+  
 });
 
 // get a person
 app.get("/api/persons/:id", (req, res) => {
   let id = req.params.id;
 
-  // find person with provided id
-  let found_person = persons.find((person) => person.id === id);
-
-  // verify if person exists
-  if (!found_person) {
-    return res
+  Contact.findById({_id:id})
+  .then(person =>{
+    // check if person exists 
+    if(!person){
+        return res
       .status(404)
       .json({
         status_code: 404,
         status: "Error",
         msg: "Person doesn't exists!",
       });
-  }
+    }
 
-  res
+    res
     .status(200)
-    .json({ status_code: 200, status: "successful", data: found_person });
+    .json({ status_code: 200, status: "successful", data: person });
+  })
+  .catch(err =>{
+    res.status(500).json({status:500, msg:"Server Encounter an error"});
+  })
+
+  
 });
 
 // delete a person
