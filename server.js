@@ -1,4 +1,5 @@
 const express = require("express");
+require('dotenv').config()
 const mongoose = require("mongoose");
 const app = express();
 
@@ -28,21 +29,11 @@ let persons = [
 
 
 // DB CONFIG
-
-// extract passwork from cli 
-if(process.argv.length < 3){
-    console.log("provide db password");
-    process.exit(1);
-}
-
-let password = process.argv[2];
-console.log("password", password)
-
-
-const url = `mongodb+srv://root:${password}@sandbox.pjn5u.mongodb.net/phonebook?appName=Sandbox`;
+const url = process.env.DB_CONNECTION_STRING;
 
 // connect to db 
-console.log("Connecting to database...")
+console.log("Connecting to database...");
+
 mongoose.connect(url, {family: 4})
 .then(()=>{
     console.log("DB connected successfully.")
