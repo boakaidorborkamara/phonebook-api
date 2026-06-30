@@ -48,10 +48,12 @@ const requestLogger = (req, res, next) => {
   next();
 };
 
-const unknownEndpoint = (req, res) => {
+const unknownEndpoint = (req, res, next) => {
   res
     .status(404)
     .json({ status_code: 404, status: "Error", msg: "Unknown endpoint" });
+
+  next();
 };
 
 app.use(express.json());
@@ -63,7 +65,7 @@ app.use(requestLogger);
 
 // ROUTES
 // get all contacts
-app.get("/api/persons", (req, res, next) => {
+app.get("/api/persons", (req, res) => {
 
     console.log("getting all contacts...");
 
@@ -75,7 +77,7 @@ app.get("/api/persons", (req, res, next) => {
 });
 
 // get info page
-app.get("/api/info", (req, res, next) => {
+app.get("/api/info", (req, res) => {
     
     console.log("getting info...");
 
@@ -100,7 +102,7 @@ app.get("/api/info", (req, res, next) => {
 app.get("/api/persons/:id", (req, res, next) => {
   let id = req.params.id;
 
-  Contact.findById({_id:id})
+  Contact.findById(id)
   .then(person =>{
     // check if person exists 
     if(!person){
@@ -112,14 +114,15 @@ app.get("/api/persons/:id", (req, res, next) => {
         msg: "Person doesn't exists!",
       });
     }
+    else{
+       return res
+      .status(200)
+      .json({ status_code: 200, status: "successful", data: person });
+    }
 
-    res
-    .status(200)
-    .json({ status_code: 200, status: "successful", data: person });
+   
   })
-  .catch(err =>{
-    next(err);
-  })
+  .catch(err => next(err))
 
   
 });
@@ -143,7 +146,7 @@ app.delete("/api/persons/:id", (req, res, next) => {
 
     res.status(204).end();
   })
-  .catch(next(err))
+  .catch(err => next(err))
 
 });
 
@@ -174,11 +177,13 @@ app.post("/api/persons", (req, res, next) => {
 
 });
 
+
+
 // handle all errors 
 app.use((error, req, res, next)=>{
-    console.log(error.type)
+    console.log("eeeeeeeeeeeeee", error.name)
 
-    if(error.name === "CastError"){
+    if(error.name == "CastError"){
         return res.status(400).json({status:400, msg:"Improper ID format"});
     }
     else if(error.name === "ValidationError"){
@@ -186,10 +191,14 @@ app.use((error, req, res, next)=>{
     }
     
     res.status(500).json({status:500, msg:"Server Encounter an error"});
+    next();
 })
+
 
 // 404 middleware 
 app.use(unknownEndpoint)
+
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
